@@ -45,7 +45,7 @@ spec:
       containers:
         - name: osd-pod
           image: ceph/daemon:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           volumeMounts:
             - name: devices
               mountPath: /dev
@@ -70,6 +70,10 @@ spec:
               value: OSD_CEPH_DISK_ACTIVATE
             - name: OSD_DEVICE
               value: /dev/sdc
+            - name: osd_public_network
+              value: 10.96.0.1/12
+            - name: osd_cluster_network
+              value: 10.96.0.1/12
             - name: KV_TYPE
               value: k8s
             - name: CLUSTER

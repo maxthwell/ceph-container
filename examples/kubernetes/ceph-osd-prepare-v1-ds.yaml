@@ -45,7 +45,7 @@ spec:
       containers:
         - name: osd-pod
           image: ceph/daemon:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           volumeMounts:
             - name: devices
               mountPath: /dev

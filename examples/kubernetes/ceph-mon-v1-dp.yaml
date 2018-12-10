@@ -17,24 +17,26 @@ spec:
         app: ceph
         daemon: mon
     spec:
-      serviceAccount: default
+      #serviceAccount: default
       tolerations:
         - key: CriticalAddonsOnly
           operator: Exists
         - key: node-role.kubernetes.io/master
           operator: Exists
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values: ["ceph"]
-              - key: daemon
-                operator: In
-                values: ["mon"]
-            topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        node-type: storage
+      #affinity:
+      #  podAntiAffinity:
+      #    requiredDuringSchedulingIgnoredDuringExecution:
+      #    - labelSelector:
+      #        matchExpressions:
+      #        - key: app
+      #          operator: In
+      #          values: ["ceph"]
+      #        - key: daemon
+      #          operator: In
+      #          values: ["mon"]
+      #      topologyKey: kubernetes.io/hostname
       volumes:
         - name: ceph-conf
           secret:
@@ -54,7 +56,7 @@ spec:
       containers:
         - name: ceph-mon
           image: ceph/daemon:latest
-#          imagePullPolicy: Always
+          imagePullPolicy: Always
           lifecycle:
             preStop:
                 exec:

@@ -40,13 +40,15 @@ spec:
           secret:
             secretName: ceph-bootstrap-rbd-keyring
         - name: osd-directory
-          emptyDir: {}
-#          hostPath:
-#            path: /home/core/data/ceph/osd
+#          emptyDir: {}
+          hostPath:
+            path: /var/lib/ceph/osd
+      #hostNetwork: true            
       containers:
         - name: osd-pod
           image: ceph/daemon:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
+          #command: ["sleep","10000"]
           volumeMounts:
             - name: devices
               mountPath: /dev
@@ -68,7 +70,13 @@ spec:
             privileged: true
           env:
             - name: CEPH_DAEMON
-              value: osd_directory
+              value: osd_directory_single
+            - name: JOURNAL
+              value: /var/lib/ceph/journal
+            - name: osd_public_network
+              value: 10.96.0.1/12
+            - name: osd_cluster_network
+              value: 10.96.0.1/12
             - name: KV_TYPE
               value: k8s
             - name: CLUSTER

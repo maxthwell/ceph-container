@@ -18,7 +18,7 @@ spec:
     spec:
       nodeSelector:
         node-type: storage
-      serviceAccount: default
+      #serviceAccount: default
       volumes:
         - name: ceph-conf
           secret:
@@ -35,11 +35,15 @@ spec:
         - name: ceph-bootstrap-rbd-keyring
           secret:
             secretName: ceph-bootstrap-rbd-keyring
+      #hostNetwork: true
       containers:
         - name: ceph-mon
           image: ceph/daemon:latest
-          imagePullPolicy: Always
+          imagePullPolicy: Never
           lifecycle:
+            postStart:
+              exec:
+                command: ["sh","-c","cp /tmp/ceph/* /etc/ceph && chown ceph:ceph /var/lib/ceph && echo \"nameserver 10.96.0.6\">>/etc/resolv.conf"]
             preStop:
                 exec:
                   # remove the mon on Pod stop.
@@ -47,18 +51,28 @@ spec:
                     - "/remove-mon.sh"
           ports:
             - containerPort: 6789
+          #args: ["mon"]
+          #command: ["sleep","100000"]
           env:
             - name: CEPH_DAEMON
               value: MON
             - name: KV_TYPE
               value: k8s
             - name: NETWORK_AUTO_DETECT
-              value: "4"
+              value: "0"
+            - name: MON_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: CEPH_PUBLIC_NETWORK
+              value: 10.96.0.0/12
+            - name: CEPH_CLUSTER_NETWORK
+              value: 10.96.0.0/12
             - name: CLUSTER
               value: ceph
           volumeMounts:
             - name: ceph-conf
-              mountPath: /etc/ceph
+              mountPath: /tmp/ceph
             - name: ceph-bootstrap-osd-keyring
               mountPath: /var/lib/ceph/bootstrap-osd
             - name: ceph-bootstrap-mds-keyring
