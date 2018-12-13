@@ -39,8 +39,10 @@ spec:
       containers:
         - name: ceph-rgw
           image: ceph/daemon:latest
+          imagePullPolicy: Never
+          #command: ["sleep","1000"]
           ports:
-            - containerPort: 8080
+            - containerPort: 7480
           env:
             - name: CEPH_DAEMON
               value: RGW
@@ -62,13 +64,13 @@ spec:
           livenessProbe:
               httpGet:
                 path: /
-                port: 8080
+                port: 7480
               initialDelaySeconds: 120
               timeoutSeconds: 5
           readinessProbe:
               httpGet:
                 path: /
-                port: 8080
+                port: 7480
               timeoutSeconds: 5
           resources:
             requests:
